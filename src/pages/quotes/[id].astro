@@ -1,0 +1,15 @@
+---
+import {getCollection, render} from 'astro:content'
+export async function getStaticPaths() {
+    const quotes = await getCollection('quotes');
+    return quotes.map(quote => ({
+      params: { id: quote.slug },
+      props: { quote },
+    }));
+  }
+  
+  const { quote } = Astro.props;
+  const { Content } = await render(quote);
+  ---
+  <h1>{quote.data.difficulty}</h1>
+  <Content />
