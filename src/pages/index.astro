@@ -3,6 +3,7 @@ import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import QuoteViewer from '@/components/react/QuoteViewer'
+import Footer from '@/components/Footer.astro';
 
 const quotes = await getCollection('quotes')
 
@@ -28,10 +29,10 @@ const quotesData = quotes.map(quote => ({
   
 </head>
 <body>
-  
-		<h1>My quotes</h1>
+
 
 		<QuoteViewer quotes={quotesData} client:load />
+		<Footer/>
         
         
         

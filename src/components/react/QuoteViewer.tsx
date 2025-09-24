@@ -198,7 +198,7 @@ export default function QuoteViewer({ quotes }: QuoteViewerProps) {
           fontWeight: 300
         }}
       >
-        {quotes.length} insights available
+        {quotes.length} quotes available
       </div>
 
       {/* Quote length indicator (debug) */}
