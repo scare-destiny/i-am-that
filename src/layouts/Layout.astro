@@ -1,6 +1,8 @@
 
 ---
 import "../styles/global.css";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
 import Umami from '@/components/analytics/Umami.astro'
 
 export interface Props {
@@ -37,11 +39,13 @@ const { title = 'Highlights Collection', description = "Wisdom from Nisargadatta
     <Umami/>
   </head>
   <body>
+    <Header/>
     <slot />
+    <Footer/>
   </body>
 </html>
 
-<style is:global>
+<style >
   * {
     margin: 0;
     padding: 0;

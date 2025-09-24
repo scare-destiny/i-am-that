@@ -3,7 +3,7 @@ import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import QuoteViewer from '@/components/react/QuoteViewer'
-import Footer from '@/components/Footer.astro';
+
 
 const quotes = await getCollection('quotes')
 
@@ -20,23 +20,5 @@ const quotesData = quotes.map(quote => ({
 ---
 
 <Layout title="Wisdom from Nisargadatta Maharaj's I Am That" description='Collection of quotes from Sri Nisargadatta Maharaj '>
-	<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I Am That - Wisdom</title>
-  
-</head>
-<body>
-
-
 		<QuoteViewer quotes={quotesData} client:load />
-		<Footer/>
-        
-        
-        
-
-</body>
-</html>
 </Layout>
