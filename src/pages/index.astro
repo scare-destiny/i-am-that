@@ -2,261 +2,40 @@
 import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import QuoteViewer from '@/components/react/QuoteViewer'
 
 const quotes = await getCollection('quotes')
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+
+const quotesData = quotes.map(quote => ({
+  id: quote.id,
+  data: {
+    text: quote.body, // The main quote text is in the body
+    theme: quote.data.theme,
+    page: quote.data.page,
+    difficulty: quote.data.difficulty,
+    tags: quote.data.tags || [],
+  }
+}));
 ---
 
-<Layout>
+<Layout title="Wisdom from Nisargadatta Maharaj's I Am That" description='Collection of quotes from Sri Nisargadatta Maharaj '>
 	<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>I Am That - Wisdom</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
-            min-height: 100vh;
-            overflow: hidden;
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        .container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
-            position: relative;
-        }
-        
-        .quote-display {
-            max-width: 800px;
-            text-align: center;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.8s ease;
-        }
-        
-        .quote-display.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .quote-text {
-            font-family: 'Crimson Text', serif;
-            font-size: clamp(1.8rem, 4vw, 3.2rem);
-            line-height: 1.6;
-            color: #2c2c2c;
-            margin-bottom: 3rem;
-            font-weight: 400;
-            letter-spacing: 0.02em;
-        }
-        
-        .quote-attribution {
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            color: #666;
-            font-weight: 300;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-        
-        .navigation-hint {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            font-size: 0.9rem;
-            color: #999;
-            opacity: 0.7;
-            font-weight: 300;
-        }
-        
-        .quote-counter {
-            position: fixed;
-            top: 2rem;
-            left: 2rem;
-            font-size: 0.9rem;
-            color: #999;
-            font-weight: 300;
-        }
-        
-        .theme-indicator {
-            position: absolute;
-            top: -2rem;
-            font-size: 0.8rem;
-            color: #aaa;
-            text-transform: lowercase;
-            font-style: italic;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 1.5rem;
-            }
-            
-            .quote-text {
-                font-size: 1.6rem;
-                margin-bottom: 2rem;
-            }
-            
-            .navigation-hint {
-                bottom: 1rem;
-                right: 1rem;
-                font-size: 0.8rem;
-            }
-            
-            .quote-counter {
-                top: 1rem;
-                left: 1rem;
-                font-size: 0.8rem;
-            }
-        }
-        
-        /* Subtle animation on hover */
-        body:hover .quote-text {
-            transform: scale(1.02);
-            transition: transform 0.3s ease;
-        }
-    </style>
+  
 </head>
 <body>
-    <div class="container">
-				<h1>My quotes</h1>
-		<ul>
-		{quotes.map(quote => (
-			<li><a href={`/blog/${quote.id}`}>{quote.data.text}</a></li>
-		))}
-		</ul>
-        <div class="quote-counter">
-            <span id="current">1</span> of <span id="total">10</span>
-        </div>
+  
+		<h1>My quotes</h1>
+
+		<QuoteViewer quotes={quotesData} client:load />
         
-        <div class="quote-display" id="quoteDisplay">
-            <div class="theme-indicator" id="themeIndicator"></div>
-            <div class="quote-text" id="quoteText"></div>
-            <div class="quote-attribution">— I Am That</div>
-        </div>
         
-        <div class="navigation-hint">
-            click anywhere for next wisdom
-        </div>
-    </div>
-
-    <script>
-        const quotes = [
-            {
-                id: 1,
-                text: "The real does not die, the unreal never lived.",
-                theme: "reality"
-            },
-            {
-                id: 2,
-                text: "You are not what you take yourself to be. Find out what you are.",
-                theme: "self-inquiry"
-            },
-            {
-                id: 3,
-                text: "Wisdom tells me I am nothing. Love tells me I am everything. Between these two my life flows.",
-                theme: "wisdom"
-            },
-            {
-                id: 4,
-                text: "The mind creates the abyss, the heart crosses it.",
-                theme: "consciousness"
-            },
-            {
-                id: 5,
-                text: "You are the Supreme Reality. Don't be satisfied with anything less.",
-                theme: "reality"
-            },
-            {
-                id: 6,
-                text: "All you need is to be aware of being aware.",
-                theme: "awareness"
-            },
-            {
-                id: 7,
-                text: "The 'I am' is a door through which the Absolute enters the manifest.",
-                theme: "consciousness"
-            },
-            {
-                id: 8,
-                text: "You are perfect as you are, and you could use a little improvement.",
-                theme: "acceptance"
-            },
-            {
-                id: 9,
-                text: "Stop imagining yourself being or doing this or that and the realization that you are the source and heart of all will dawn upon you.",
-                theme: "self-inquiry"
-            },
-            {
-                id: 10,
-                text: "The consciousness in you and the consciousness in me, apparently two, are one consciousness.",
-                theme: "unity"
-            }
-        ];
-
-        let currentQuoteIndex = 0;
-        const quoteDisplay = document.getElementById('quoteDisplay');
-        const quoteText = document.getElementById('quoteText');
-        const themeIndicator = document.getElementById('themeIndicator');
-        const currentCounter = document.getElementById('current');
-        const totalCounter = document.getElementById('total');
-
-        function displayQuote(index) {
-            const quote = quotes[index];
-            
-            // Fade out
-            quoteDisplay.classList.remove('visible');
-            
-            setTimeout(() => {
-                quoteText.textContent = `"${quote.text}"`;
-                themeIndicator.textContent = quote.theme;
-                currentCounter.textContent = index + 1;
-                
-                // Fade in
-                quoteDisplay.classList.add('visible');
-            }, 400);
-        }
-
-        function nextQuote() {
-            currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
-            displayQuote(currentQuoteIndex);
-        }
-
-        // Initialize
-        totalCounter.textContent = quotes.length;
-        displayQuote(0);
         
-        // Show first quote after brief delay
-        setTimeout(() => {
-            quoteDisplay.classList.add('visible');
-        }, 500);
 
-        // Click anywhere to advance
-        document.addEventListener('click', nextQuote);
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
-                nextQuote();
-            }
-        });
-    </script>
 </body>
 </html>
 </Layout>

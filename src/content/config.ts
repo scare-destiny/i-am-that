@@ -7,7 +7,6 @@ const quotes = defineCollection({
       'reality','self-inquiry','awareness','consciousness','wisdom',
       'acceptance','unity','being','identity','liberation','presence','truth'
     ]),
-    title: z.string(),
     page: z.number().optional(),
     difficulty: z.enum(['beginner','intermediate','advanced']).optional(),
     tags: z.array(z.string()).optional(),

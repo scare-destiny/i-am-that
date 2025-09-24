@@ -1,5 +1,6 @@
 import re
 import os
+import shutil
 from pathlib import Path
 
 def parse_quotes_from_file(file_path):
@@ -20,7 +21,6 @@ def parse_quotes_from_file(file_path):
     
     for i, line in enumerate(lines):
         line = line.strip()
-        print(f"Line {i}: {line[:100]}...")  # Debug output
         
         # Skip header lines
         if any(line.startswith(x) for x in ['# ', '![](', '### Metadata', '- Author:', '- Full Title:', '- Category:', '### Highlights']):
@@ -96,6 +96,27 @@ def parse_quotes_from_file(file_path):
     print(f"Total quotes found: {len(quotes)}")
     return quotes
 
+def generate_title(quote_text):
+    """Generate a title from the quote text"""
+    # Take first 5-7 words for the title
+    words = quote_text.split()[:7]
+    title = ' '.join(words)
+    
+    # Clean up the title - remove quotes, special characters, etc.
+    title = re.sub(r'[MQ]:\s*', '', title)  # Remove M: or Q: prefixes
+    title = re.sub(r'[^\w\s]', '', title)  # Remove special characters
+    title = title.strip()
+    
+    # If title is too short, use more words
+    if len(title) < 10:
+        words = quote_text.split()[:12]
+        title = ' '.join(words)
+        title = re.sub(r'[MQ]:\s*', '', title)
+        title = re.sub(r'[^\w\s]', '', title)
+        title = title.strip()
+    
+    return title
+
 def determine_theme_and_difficulty(quote_text):
     """Determine the theme and difficulty based on quote content"""
     
@@ -142,17 +163,35 @@ def determine_theme_and_difficulty(quote_text):
     
     return theme, difficulty
 
-def create_slug(text):
+def create_slug(quote_text):
     """Create a filename-friendly slug from quote text"""
     # Take first 5-7 words max for filename
-    words = text.split()[:7]
+    words = quote_text.split()[:7]
     short_text = ' '.join(words)
     
     # Remove special characters and create slug
     slug = re.sub(r'[^\w\s-]', '', short_text.lower())
     slug = re.sub(r'[-\s]+', '-', slug).strip('-')
     
+    # Ensure slug is not empty
+    if not slug:
+        slug = 'quote'
+    
     return slug
+
+def clean_quotes_directory(quotes_dir):
+    """Remove all existing files in the quotes directory"""
+    if os.path.exists(quotes_dir):
+        print(f"Cleaning up existing quotes in {quotes_dir}...")
+        for filename in os.listdir(quotes_dir):
+            file_path = os.path.join(quotes_dir, filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+                print(f"Removed: {filename}")
+        print("Cleanup completed.")
+    else:
+        print(f"Quotes directory {quotes_dir} does not exist. Creating it...")
+        os.makedirs(quotes_dir)
 
 def write_quote_files(quotes, output_dir):
     """Write each quote to individual markdown files"""
@@ -162,12 +201,14 @@ def write_quote_files(quotes, output_dir):
     
     for i, quote in enumerate(quotes):
         theme, difficulty = determine_theme_and_difficulty(quote['text'])
+        title = generate_title(quote['text'])
         slug = create_slug(quote['text'])
         filename = f"{i+1:03d}-{slug}.md"
         filepath = os.path.join(output_dir, filename)
         
         # Prepare frontmatter
         frontmatter = f"""---
+title: "{title}"
 theme: "{theme}"
 difficulty: "{difficulty}"
 page: {quote['page']}
@@ -194,15 +235,25 @@ page: {quote['page']}
         print(f"Created: {filename}")
 
 def main():
-    # Configuration
-    input_file = "i-am-that.md"
-    output_directory = "quotes_output"
+    # Configuration - using relative paths from the script location
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent.parent  # Go up two levels from src/utils to src/
     
-    if not os.path.exists(input_file):
+    input_file = project_root / "i-am-that.md"
+    output_directory = project_root / "content" / "quotes"
+    
+    print(f"Script directory: {script_dir}")
+    print(f"Project root: {project_root}")
+    print(f"Input file: {input_file}")
+    print(f"Output directory: {output_directory}")
+    
+    if not input_file.exists():
         print(f"Error: Input file '{input_file}' not found!")
-        print(f"Current directory: {os.getcwd()}")
-        print(f"Files in directory: {os.listdir('.')}")
+        print(f"Files in project root: {list(project_root.iterdir())}")
         return
+    
+    # Clean up existing quotes
+    clean_quotes_directory(output_directory)
     
     print("Parsing quotes from file...")
     quotes = parse_quotes_from_file(input_file)
