@@ -1,15 +1,463 @@
 ---
-import {getCollection, render} from 'astro:content'
+// src/pages/quotes/[id].astro
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
 export async function getStaticPaths() {
-    const quotes = await getCollection('quotes');
-    return quotes.map(quote => ({
-      params: { id: quote.slug },
-      props: { quote },
-    }));
-  }
+  const quotes = await getCollection('quotes');
+  return quotes.map(quote => ({
+    params: { id: quote.slug },
+    props: { quote },
+  }));
+}
+
+type Props = {
+  quote: CollectionEntry<'quotes'>;
+};
+
+const { quote } = Astro.props;
+const { Content } = await render(quote);
+
+// Generate SEO-friendly title and description
+const quoteText = quote.body;
+const shortText = quoteText.length > 100 ? quoteText.substring(0, 97) + '...' : quoteText;
+const title = `"${shortText}" - I Am That Quote`;
+const description = `Wisdom from Nisargadatta Maharaj's I Am That: "${quoteText}" Explore this ${quote.data.theme} teaching about ${quote.data.tags?.slice(0, 3).join(', ') || 'consciousness and reality'}.`;
+
+// Get related quotes (same theme, different quote)
+const allQuotes = await getCollection('quotes');
+const relatedQuotes = allQuotes
+  .filter(q => q.data.theme === quote.data.theme && q.slug !== quote.slug)
+  .slice(0, 3);
+
+// Structured data for SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Quotation",
+  "text": quote.body,
+  "author": {
+    "@type": "Person",
+    "name": "Nisargadatta Maharaj"
+  },
+  "isPartOf": {
+    "@type": "Book",
+    "name": "I Am That",
+    "author": {
+      "@type": "Person", 
+      "name": "Nisargadatta Maharaj"
+    }
+  },
+  "about": quote.data.tags?.map(tag => ({
+    "@type": "Thing",
+    "name": tag
+  })) || [],
+  "genre": quote.data.theme,
+  "url": `${Astro.site}quotes/${quote.slug}`
+};
+---
+
+<Layout 
+  title={title}
+  description={description}
+>
+  <!-- Structured Data -->
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   
-  const { quote } = Astro.props;
-  const { Content } = await render(quote);
-  ---
-  <h1>{quote.data.difficulty}</h1>
-  <Content />
+  <!-- Additional SEO meta tags -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={`${Astro.site}quotes/${quote.slug}`} />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  
+  <!-- Keywords -->
+  <meta name="keywords" content={`Nisargadatta Maharaj, I Am That, ${quote.data.theme}, wisdom, spirituality, consciousness, ${quote.data.tags?.join(', ') || ''}`} />
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href={`${Astro.site}quotes/${quote.slug}`} />
+
+  <main class="quote-page">
+    <div class="container">
+      <!-- Breadcrumbs -->
+      <nav class="breadcrumbs">
+        <a href="/">Home</a>
+        <span>→</span>
+        <a href="/quotes">All Quotes</a>
+        <span>→</span>
+        <span class="current">{quote.data.theme}</span>
+      </nav>
+
+      <!-- Main Quote Display -->
+      <article class="main-quote">
+        <header class="quote-header">
+          <div class="quote-meta-top">
+            <span class="theme-badge">{quote.data.theme}</span>
+            {quote.data.difficulty && (
+              <span class={`difficulty difficulty-${quote.data.difficulty}`}>
+                {quote.data.difficulty}
+              </span>
+            )}
+            {quote.data.page && (
+              <span class="location-badge">location {quote.data.page}</span>
+            )}
+          </div>
+        </header>
+
+        <div class="quote-content">
+          <blockquote class="main-quote-text">
+            "{quote.body}"
+          </blockquote>
+          
+          <cite class="attribution">
+            — Sri Nisargadatta Maharaj, <em>I Am That</em>
+          </cite>
+        </div>
+
+        {quote.data.tags && (
+          <div class="tags-section">
+            <h3>Related concepts:</h3>
+            <div class="tags">
+              {quote.data.tags.map(tag => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </article>
+
+      <!-- Navigation -->
+      <section class="quote-navigation">
+        <div class="nav-buttons">
+          <a href="/" class="nav-btn primary">
+            <span>↻</span>
+            Random Quote
+          </a>
+          <a href="/quotes" class="nav-btn">
+            <span>📚</span>
+            All Quotes
+          </a>
+        </div>
+      </section>
+
+      <!-- Related Quotes -->
+      {relatedQuotes.length > 0 && (
+        <section class="related-quotes">
+          <h2>More on {quote.data.theme}</h2>
+          <div class="related-grid">
+            {relatedQuotes.map(relatedQuote => (
+              <a href={`/quotes/${relatedQuote.slug}`} class="related-quote">
+                <blockquote>
+                  "{relatedQuote.body.length > 150 
+                    ? relatedQuote.body.substring(0, 147) + '...'
+                    : relatedQuote.body}"
+                </blockquote>
+                {relatedQuote.data.page && (
+                  <span class="related-location">loc. {relatedQuote.data.page}</span>
+                )}
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- Share buttons -->
+      <section class="share-section">
+        <h3>Share this wisdom</h3>
+        <div class="share-buttons">
+          <a 
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`"${quote.data.text}" — Nisargadatta Maharaj`)}&url=${encodeURIComponent(`${Astro.site}quotes/${quote.slug}`)}`}
+            target="_blank"
+            class="share-btn twitter"
+          >
+            Share on Twitter
+          </a>
+          <button 
+            class="share-btn copy"
+            onclick={`navigator.clipboard.writeText('"${quote.data.text}" — Nisargadatta Maharaj, I Am That')`}
+          >
+            Copy Quote
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .quote-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+    padding: 2rem 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .breadcrumbs a {
+    color: #666;
+    text-decoration: none;
+  }
+
+  .breadcrumbs a:hover {
+    color: #2c2c2c;
+  }
+
+  .breadcrumbs .current {
+    color: #2c2c2c;
+    font-weight: 500;
+  }
+
+  .main-quote {
+    background: white;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+
+  .quote-meta-top {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .theme-badge {
+    background: #f0f0f0;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    color: #666;
+    text-transform: lowercase;
+  }
+
+  .difficulty {
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .difficulty-beginner { background: #e8f5e8; color: #2d5a2d; }
+  .difficulty-intermediate { background: #fff3e0; color: #bf6000; }
+  .difficulty-advanced { background: #fce4ec; color: #8e24aa; }
+
+  .location-badge {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+  }
+
+  .main-quote-text {
+    font-family: 'Crimson Text', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1.5;
+    color: #2c2c2c;
+    margin: 2rem 0;
+    font-style: italic;
+  }
+
+  .attribution {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    color: #666;
+    font-weight: 300;
+    font-style: normal;
+  }
+
+  .tags-section {
+    margin-top: 2rem;
+    text-align: left;
+  }
+
+  .tags-section h3 {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 1rem;
+    font-weight: 400;
+  }
+
+  .tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    background: #f5f5f5;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .quote-navigation {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .nav-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: white;
+    border-radius: 50px;
+    text-decoration: none;
+    color: #2c2c2c;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  .nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(0,0,0,0.15);
+  }
+
+  .nav-btn.primary {
+    background: #2c2c2c;
+    color: white;
+  }
+
+  .related-quotes {
+    margin-bottom: 3rem;
+  }
+
+  .related-quotes h2 {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.8rem;
+    color: #2c2c2c;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .related-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .related-quote {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #2c2c2c;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+  }
+
+  .related-quote:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 30px rgba(0,0,0,0.12);
+  }
+
+  .related-quote blockquote {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    font-style: italic;
+    margin: 0 0 1rem 0;
+  }
+
+  .related-location {
+    font-size: 0.9rem;
+    color: #999;
+  }
+
+  .share-section {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+  }
+
+  .share-section h3 {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 1rem;
+    font-weight: 400;
+  }
+
+  .share-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .share-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .share-btn.twitter {
+    background: #1da1f2;
+    color: white;
+  }
+
+  .share-btn.copy {
+    background: #f0f0f0;
+    color: #2c2c2c;
+  }
+
+  .share-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 0 1rem;
+    }
+
+    .main-quote {
+      padding: 2rem;
+    }
+
+    .breadcrumbs {
+      flex-wrap: wrap;
+    }
+
+    .nav-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .nav-btn {
+      width: 100%;
+      max-width: 300px;
+      justify-content: center;
+    }
+  }
+</style>

@@ -20,11 +20,90 @@ export default function QuoteViewer({ quotes }: QuoteViewerProps) {
   const [currentQuote, setCurrentQuote] = useState<Quote | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [quoteHistory, setQuoteHistory] = useState<string[]>([]);
+  const [fontSize, setFontSize] = useState('2.5rem');
+  const [lineHeight, setLineHeight] = useState(1.6);
+
+  // Calculate optimal font size based on quote length and screen width
+  const calculateFontSize = (text: string) => {
+    const wordCount = text.split(/\s+/).length;
+    const charCount = text.length;
+    
+    // Get screen width
+    const screenWidth = window.innerWidth;
+    const isMobile = screenWidth < 768;
+    const isTablet = screenWidth >= 768 && screenWidth < 1024;
+    
+    // Base sizes for different screen types
+    let baseSize: number;
+    let baseLineHeight: number;
+    
+    if (isMobile) {
+      baseSize = 1.6; // rem
+      baseLineHeight = 1.5;
+    } else if (isTablet) {
+      baseSize = 2.0; // rem
+      baseLineHeight = 1.55;
+    } else {
+      baseSize = 2.5; // rem
+      baseLineHeight = 1.6;
+    }
+    
+    // Adjust based on quote length
+    let sizeMultiplier = 1;
+    let lineHeightMultiplier = 1;
+    
+    if (wordCount > 100 || charCount > 600) {
+      // Very long quotes - significantly smaller
+      sizeMultiplier = 0.6;
+      lineHeightMultiplier = 1.1;
+    } else if (wordCount > 60 || charCount > 400) {
+      // Long quotes - smaller
+      sizeMultiplier = 0.75;
+      lineHeightMultiplier = 1.05;
+    } else if (wordCount > 40 || charCount > 250) {
+      // Medium-long quotes
+      sizeMultiplier = 0.85;
+      lineHeightMultiplier = 1.0;
+    } else if (wordCount > 25 || charCount > 150) {
+      // Medium quotes
+      sizeMultiplier = 0.95;
+      lineHeightMultiplier = 0.98;
+    }
+    // Short quotes use base size (multiplier = 1)
+    
+    const calculatedSize = baseSize * sizeMultiplier;
+    const calculatedLineHeight = baseLineHeight * lineHeightMultiplier;
+    
+    return {
+      fontSize: `${Math.max(calculatedSize, 1.2)}rem`, // Minimum 1.2rem
+      lineHeight: Math.max(calculatedLineHeight, 1.3)
+    };
+  };
+
+  // Update font size when quote changes or window resizes
+  useEffect(() => {
+    if (currentQuote) {
+      const { fontSize: newFontSize, lineHeight: newLineHeight } = calculateFontSize(currentQuote.data.text);
+      setFontSize(newFontSize);
+      setLineHeight(newLineHeight);
+    }
+    
+    const handleResize = () => {
+      if (currentQuote) {
+        const { fontSize: newFontSize, lineHeight: newLineHeight } = calculateFontSize(currentQuote.data.text);
+        setFontSize(newFontSize);
+        setLineHeight(newLineHeight);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [currentQuote]);
 
   // Get random quote that hasn't been shown recently
   const getRandomQuote = (): Quote => {
     const availableQuotes = quotes.filter(quote => 
-      !quoteHistory.slice(-3).includes(quote.id) // Avoid last 3 quotes
+      !quoteHistory.slice(-3).includes(quote.id)
     );
     
     const quotesToChooseFrom = availableQuotes.length > 0 ? availableQuotes : quotes;
@@ -39,7 +118,11 @@ export default function QuoteViewer({ quotes }: QuoteViewerProps) {
       setCurrentQuote(initialQuote);
       setQuoteHistory([initialQuote.id]);
       
-      // Show quote after brief delay
+      // Calculate initial font size
+      const { fontSize: initialFontSize, lineHeight: initialLineHeight } = calculateFontSize(initialQuote.data.text);
+      setFontSize(initialFontSize);
+      setLineHeight(initialLineHeight);
+      
       setTimeout(() => setIsVisible(true), 500);
     }
   }, [quotes]);
@@ -52,12 +135,17 @@ export default function QuoteViewer({ quotes }: QuoteViewerProps) {
     setTimeout(() => {
       const nextQuote = getRandomQuote();
       setCurrentQuote(nextQuote);
-      setQuoteHistory(prev => [...prev.slice(-4), nextQuote.id]); // Keep last 5
+      setQuoteHistory(prev => [...prev.slice(-4), nextQuote.id]);
+      
+      // Calculate font size for new quote
+      const { fontSize: newFontSize, lineHeight: newLineHeight } = calculateFontSize(nextQuote.data.text);
+      setFontSize(newFontSize);
+      setLineHeight(newLineHeight);
+      
       setIsVisible(true);
     }, 400);
   };
 
-  // Click handler
   const handleClick = () => {
     showNextQuote();
   };
@@ -81,7 +169,7 @@ export default function QuoteViewer({ quotes }: QuoteViewerProps) {
 
   return (
     <div 
-      className=" m-auto"
+      className="quote-container"
       onClick={handleClick}
       style={{
         fontFamily: "'Inter', sans-serif",
@@ -113,16 +201,32 @@ export default function QuoteViewer({ quotes }: QuoteViewerProps) {
         {quotes.length} insights available
       </div>
 
+      {/* Quote length indicator (debug) */}
+      <div 
+        className="length-indicator"
+        style={{
+          position: "fixed",
+          top: "4rem",
+          left: "2rem",
+          fontSize: "0.7rem",
+          color: "#ccc",
+          fontWeight: 300
+        }}
+      >
+        {currentQuote.data.text.length} chars • {currentQuote.data.text.split(/\s+/).length} words
+      </div>
+
       {/* Main quote display */}
       <div 
         className={`quote-display ${isVisible ? 'visible' : ''}`}
         style={{
-          maxWidth: "800px",
+          maxWidth: "min(800px, 90vw)",
           textAlign: "center",
           opacity: isVisible ? 1 : 0,
           transform: isVisible ? "translateY(0)" : "translateY(20px)",
           transition: "all 0.8s ease",
-          position: "relative"
+          position: "relative",
+          padding: "0 1rem"
         }}
       >
         {/* Theme indicator */}
@@ -146,12 +250,15 @@ export default function QuoteViewer({ quotes }: QuoteViewerProps) {
           className="quote-text"
           style={{
             fontFamily: "'Crimson Text', serif",
-            fontSize: "clamp(1.8rem, 4vw, 3.2rem)",
-            lineHeight: 1.6,
+            fontSize: fontSize,
+            lineHeight: lineHeight,
             color: "#2c2c2c",
             marginBottom: "3rem",
             fontWeight: 400,
-            letterSpacing: "0.02em"
+            letterSpacing: "0.02em",
+            wordWrap: "break-word",
+            overflowWrap: "break-word",
+            hyphens: "auto"
           }}
         >
           "{currentQuote.data.text}"
@@ -161,7 +268,7 @@ export default function QuoteViewer({ quotes }: QuoteViewerProps) {
           className="quote-attribution"
           style={{
             fontFamily: "'Inter', sans-serif",
-            fontSize: "1rem",
+            fontSize: "clamp(0.8rem, 2vw, 1rem)",
             color: "#666",
             fontWeight: 300,
             letterSpacing: "0.1em",
