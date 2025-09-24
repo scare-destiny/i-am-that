@@ -1,7 +1,8 @@
 
 ---
 import "../styles/global.css";
-// src/layouts/Layout.astro
+import Umami from '@/components/analytics/Umami.astro'
+
 export interface Props {
   title: string;
   description?: string;
@@ -33,6 +34,7 @@ const { title = 'Highlights Collection', description = "Wisdom from Nisargadatta
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <Umami/>
   </head>
   <body>
     <slot />
