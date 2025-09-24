@@ -1,0 +1,7 @@
+---
+theme: "reality"
+difficulty: "intermediate"
+page: 343
+---
+
+Q: Yet, I cannot see how can anything come to be without a cause. M: When I say a thing is without a cause, I mean it can be with-out a particular cause. Your own mother was needed to give you birth; But you could not have been born without the sun and the earth. Even these could not have caused your birth without your own desire to be born. It is desire that gives birth, that gives name and form. The desirable is imagined and wanted and manifests itself as something tangible or con-ceivable. Thus is created the world in which we live, our personal world. The real world is beyond the mind's ken; we see it through the net of our desires, divided into pleasure and pain, right and wrong, inner and outer. To see the universe as it is, you must step beyond the net. It is not hard to do so, for the net is full of holes. Q: What do you mean by holes? And how to find them? M: Look at the net and its many contradictions. You do and undo at every step. You want peace, love, happiness and work hard to create pain, hatred and war. You want longevity and overeat, you want friendship and exploit. See your net as made of such contradictions and remove them — your very seeing them will make them go. Desire is imagined and manifests itself as smth tangible / conceivable

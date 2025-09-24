@@ -1,0 +1,8 @@
+---
+theme: "being"
+difficulty: "intermediate"
+page: 6901
+tags: ["favorite"]
+---
+
+Maharaj: This attachment is born along with the sense of 'me' and 'mine'. Find the true meaning of these words and you will be free of all bondage. You have a mind which is spread in time. One after another all things happen to you and the memory remains. There is nothing wrong in it. The problem arises only when the memory of past pains and pleasures — which are essential to all organic life — remains as a reflex, dominating behaviour. This reflex takes the shape of 'I' and uses the body and the mind for its purposes, which are invariably in search for pleasure or flight from pain. When you recognise the 'I' as it is, a bundle of desires and fears, and the sense of 'mine', as embracing all things and people needed for the purpose of avoiding pain and securing pleasure, you will see that the 'I' and the 'mine' are false ideas, having no foundation in reality. Created by the mind, they rule their creator as long as it takes them to be true; when questioned, they dissolve. The 'I' and 'mine', having no existence in themselves, need a support which they find in the body. The body becomes their point of reference. When you talk of 'my' husband and 'my' children, you mean the body's husband and the body's children. Give up the idea of being the body and face the question: Who am l? At once a process will be set in motion which will bring back reality, or, rather, will take the mind to reality. Only, you must not be afraid.
