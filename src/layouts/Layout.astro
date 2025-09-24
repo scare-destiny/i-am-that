@@ -8,9 +8,10 @@ import Umami from '@/components/analytics/Umami.astro'
 export interface Props {
   title: string;
   description?: string;
+  image?: string;
 }
 
-const { title = 'Highlights Collection', description = "Wisdom from Nisargadatta Maharaj's I Am That" } = Astro.props;
+const { title = 'Highlights Collection', description = "Wisdom from Nisargadatta Maharaj's I Am That", image = '/images/og-image.png' } = Astro.props;
 ---
 
 
@@ -33,9 +34,12 @@ const { title = 'Highlights Collection', description = "Wisdom from Nisargadatta
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:type" content="image/png" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
     <Umami/>
   </head>
   <body>

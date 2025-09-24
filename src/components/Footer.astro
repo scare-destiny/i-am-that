@@ -1,7 +1,5 @@
 ---
-import Hr from "./Hr.astro";
-import Socials from "./Socials.astro";
-
+// src/components/Footer.astro
 const currentYear = new Date().getFullYear();
 
 export interface Props {
@@ -11,16 +9,63 @@ export interface Props {
 const { noMarginTop = false } = Astro.props;
 ---
 
-<footer class:list={["w-full", { "mt-auto": !noMarginTop }]}>
-  <Hr noPadding />
-  <div
-    class="flex flex-col items-center justify-between py-6 sm:flex-row-reverse sm:py-4"
-  >
-    <Socials centered />
-    <div class="my-2 flex flex-col items-center whitespace-nowrap sm:flex-row">
-      <span>Copyright &#169; {currentYear}</span>
-      <span class="hidden sm:inline">&nbsp;|&nbsp;</span>
-      <span>All rights reserved.</span>
+<footer class:list={["w-full bg-gray-800 text-gray-300", { "mt-auto": !noMarginTop }]}>
+  <div class="max-w-4xl mx-auto px-6 py-12">
+    <!-- Main Footer Content -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      
+      <!-- Brand Section -->
+      <div class="text-center md:text-left">
+        <h3 class="text-2xl font-serif font-semibold text-white mb-3">I Am That</h3>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          A collection of profound wisdom from Sri Nisargadatta Maharaj's timeless teachings.
+        </p>
+      </div>
+      
+      <!-- Navigation -->
+      <div class="text-center">
+        <h4 class="text-lg font-medium text-white mb-4">Explore</h4>
+        <nav class="space-y-3">
+          <div>
+            <a href="/" class="text-gray-400 hover:text-white transition-colors duration-200">
+              Random Reflection
+            </a>
+          </div>
+          <div>
+            <a href="/quotes" class="text-gray-400 hover:text-white transition-colors duration-200">
+              Browse All Quotes
+            </a>
+          </div>
+          <div>
+            <a href="/about" class="text-gray-400 hover:text-white transition-colors duration-200">
+              About This Collection
+            </a>
+          </div>
+        </nav>
+      </div>
+
+      
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="border-t border-gray-700 pt-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="text-sm text-gray-400 text-center sm:text-left">
+          <span>Created by </span>
+          <a 
+            href="https://venger.me" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="text-gray-300 hover:text-white transition-colors duration-200"
+          >
+            Eugene Venger
+          </a>
+        </div>
+        
+        <div class="text-sm text-gray-400 text-center sm:text-right">
+          <div class="italic mt-1">Quotes from "I Am That" by Sri Nisargadatta Maharaj</div>
+        </div>
+      </div>
     </div>
   </div>
 </footer>
