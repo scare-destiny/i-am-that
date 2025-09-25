@@ -2,7 +2,6 @@
 // src/pages/quotes/index.astro
 import { getCollection } from 'astro:content';
 import Layout from '@/layouts/Layout.astro';
-import Header from '@/components/Header.astro';
 const quotes = await getCollection('quotes');
 const sortedQuotes = quotes.sort((a, b) => {
   if (a.data.page && b.data.page) return a.data.page - b.data.page;

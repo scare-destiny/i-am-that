@@ -168,7 +168,7 @@ const structuredData = {
         <h3>Share this wisdom</h3>
         <div class="share-buttons">
           <a 
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`"${quote.data.text}" — Nisargadatta Maharaj`)}&url=${encodeURIComponent(`${Astro.site}quotes/${quote.slug}`)}`}
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`"${quote.body}" — Nisargadatta Maharaj`)}&url=${encodeURIComponent(`${Astro.site}quotes/${quote.slug}`)}`}
             target="_blank"
             class="share-btn twitter"
           >
@@ -176,7 +176,7 @@ const structuredData = {
           </a>
           <button 
             class="share-btn copy"
-            onclick={`navigator.clipboard.writeText('"${quote.data.text}" — Nisargadatta Maharaj, I Am That')`}
+            onclick={`navigator.clipboard.writeText('"${quote.body}" — Nisargadatta Maharaj, I Am That')`}
           >
             Copy Quote
           </button>
